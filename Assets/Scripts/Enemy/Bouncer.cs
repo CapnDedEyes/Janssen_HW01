@@ -4,14 +4,13 @@ using UnityEngine;
 
 public class Bouncer : Enemy
 {
+    [SerializeField] int bounceForce = 500;
+
     protected override void PlayerImpact(Player player)
     {
         //base.PlayerImpact(player);
-        player.Bounce();
-    }
-
-    protected override void Move()
-    {
-        
+        //player.Bounce();
+        player.GetComponent<Rigidbody>().AddExplosionForce(bounceForce, transform.position, 1);
+        Debug.Log("Boing!");
     }
 }

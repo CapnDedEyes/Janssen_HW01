@@ -56,6 +56,7 @@ public class Enemy : MonoBehaviour
 
     protected virtual void Move()
     {
-
+        rb.constraints = RigidbodyConstraints.FreezePositionX
+            | RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezePositionZ;
     }
 }

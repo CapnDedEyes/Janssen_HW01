@@ -9,41 +9,28 @@ public class Player : MonoBehaviour
     //TODO offload health into a Health.cs script
     //backing field
     [SerializeField] int _maxHealth = 3;
+    [SerializeField] float _waitTime = 10f;
+    [SerializeField] AudioClip _powerDownSound;
 
-    Vector3 offset;
+    public Material[] material;
+    Renderer rend;
 
+    private GameObject player;
     public Text treasureText;
     private float _currentTreasure;
+    public bool invincible = false;
 
     //property. Can be retreived, but not set
     int _currentHealth;
-
-    /*public int MaxHealth
-    {
-        get { return _maxHealth; }
-    }
-
-    public int CurrentHealth
-    {
-        get { return _currentHealth; }
-        private set
-        {
-            //value represents the new value we're trying to set
-            //make sure new value is not above max
-            if(value > _maxHealth)
-            {
-                value = _maxHealth;
-            }
-            //assign the newly adjusted value
-            _currentHealth = value;
-        }
-    }*/
 
     BallMotor _ballMotor;
 
     private void Awake()
     {
         _ballMotor = GetComponent<BallMotor>();
+        rend = GetComponent<Renderer>();
+        rend.enabled = true;
+        rend.sharedMaterial = material[0];
     }
 
     private void Start()
@@ -88,8 +75,12 @@ public class Player : MonoBehaviour
 
     public void DecreaseHealth(int amount)
     {
-        _currentHealth -= amount;
-        Debug.Log("Player's health: " + _currentHealth);
+        if (invincible == false)
+        {
+            _currentHealth -= amount;
+            Debug.Log("Player's health: " + _currentHealth);
+        }
+
         if (_currentHealth <= 0)
         {
             Kill();
@@ -102,15 +93,37 @@ public class Player : MonoBehaviour
         Debug.Log("Player's treasure: " + _currentTreasure);
     }
 
-    public void Bounce()
+    public void PowerUp()
     {
-        transform.position = _ballMotor.transform.position + offset;
+        Debug.Log("Invincibility activate!");
+        invincible = true;
+        rend.sharedMaterial = material[1];
+        StartCoroutine("PowerUpDuration");
+    }
+
+
+    IEnumerator PowerUpDuration()
+    {
+        yield return new WaitForSeconds(_waitTime);
+        PowerDown();
+    }
+
+    private void PowerDown()
+    {
+        Debug.Log("Invincibility deactivate");
+        invincible = false;
+        AudioHelper.PlayClip2D(_powerDownSound, 1f);
+        rend.sharedMaterial = material[0];
     }
 
     public void Kill()
     {
-        gameObject.SetActive(false);
-        //play particles
-        //play sounds
+        if (invincible == false)
+        {
+            gameObject.SetActive(false);
+            //play particles
+            //play sounds
+        }
+
     }
 }
